@@ -30,6 +30,13 @@ torch 2.12.0 | macOS 26.4.1 | arm64
 
 Exit code is `1` when a silent-correctness failure is found, so it drops into CI unchanged.
 
+## The write-up
+
+The full debugging story behind both checks — how a black SDXL image led to a broken documented
+contract, and how a five-month-old weight-corruption report was reproduced without downloading the
+30 GB model:
+**[Your Mac is quietly computing the wrong answer](docs/your-mac-is-computing-the-wrong-answer.md)**
+
 ## Why this exists
 
 Both checks that ship in v0.1 came out of debugging real failures in
