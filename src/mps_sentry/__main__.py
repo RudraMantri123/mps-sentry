@@ -6,7 +6,7 @@ import argparse
 import platform
 import sys
 
-from . import __version__, run
+from . import __version__, mps_usable, run
 from .probes import ALL_PROBES
 
 _ICON = {"ok": "  ok  ", "corrupt": "CORRUPT", "error": " error", "skipped": " skip "}
@@ -34,6 +34,15 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"mps-sentry {__version__}")
     print(f"torch {torch.__version__} | macOS {platform.mac_ver()[0]} | {platform.machine()}\n")
+
+    usable, reason = mps_usable()
+    if not usable:
+        print(f"Cannot run: {reason}")
+        print(
+            "\nThese checks need a real Metal device. Virtualised macOS environments — including\n"
+            "GitHub's macOS runners — report MPS as available but fail on the first allocation."
+        )
+        return 2
 
     results = run(args.only)
     width = max(len(r.name) for r in results)

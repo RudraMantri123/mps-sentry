@@ -80,6 +80,23 @@ for result in mps_sentry.run():
         print(result.name, result.detail)
 ```
 
+## Running this in CI
+
+Hosted macOS runners (including GitHub's `macos-14`) report `torch.backends.mps.is_available()`
+as `True` but fail on the first allocation with *"MPS backend out of memory (MPS allocated:
+0 bytes)"* — the flag alone is not a reliable signal. `mps_sentry.mps_usable()` attempts a real
+allocation and kernel launch, and the CLI exits **2** with an explanation rather than crashing
+when no usable device is present. Exit codes:
+
+| code | meaning |
+|---|---|
+| 0 | no silent-correctness failures found |
+| 1 | at least one silent-correctness failure |
+| 2 | no usable MPS device on this machine |
+
+So a self-hosted Apple Silicon runner gates on `mps-sentry`, and a hosted runner can tolerate
+exit 2 without pretending it verified anything.
+
 ## Reading the output
 
 - **CORRUPT** — MPS and CPU disagree beyond what the dtype's rounding allows, or NaN appears only

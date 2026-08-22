@@ -1,16 +1,23 @@
 name: CI
 on: [push, pull_request]
+
 jobs:
-  test:
-    runs-on: macos-14          # Apple Silicon runner: MPS is actually available
+  # Hosted macOS runners report torch.backends.mps.is_available() == True but fail on the
+  # first allocation, so they cannot exercise the MPS checks. This job verifies packaging,
+  # imports, and the CPU-side logic; the MPS checks are skipped there and are validated on
+  # real Apple Silicon (see the version matrix in the README).
+  package:
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install torch pytest
+      - run: pip install torch numpy pytest
       - run: pip install -e .
       - run: pytest tests -v
-      - name: Report MPS correctness status (informational)
-        continue-on-error: true   # a failing torch build must not fail the repo's own CI
-        run: mps-sentry
+      - name: MPS device status on this runner
+        run: |
+          python -c "import mps_sentry; ok, why = mps_sentry.mps_usable(); print('usable:', ok, '|', why)"
+      - name: Run the checks if a real device is present
+        run: mps-sentry || [ $? -eq 2 ]   # exit 2 = no usable MPS device, expected on hosted runners
