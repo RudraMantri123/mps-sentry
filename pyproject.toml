@@ -1,0 +1,20 @@
+[project]
+name = "mps-sentry"
+version = "0.1.0"
+description = "Differential correctness checks for PyTorch's Apple Silicon (MPS) backend"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Rudra Mantri" }]
+keywords = ["pytorch", "mps", "apple-silicon", "correctness", "testing"]
+dependencies = ["torch>=2.0"]
+
+[project.scripts]
+mps-sentry = "mps_sentry.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

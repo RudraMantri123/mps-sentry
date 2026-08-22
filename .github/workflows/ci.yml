@@ -1,0 +1,16 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: macos-14          # Apple Silicon runner: MPS is actually available
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install torch pytest
+      - run: pip install -e .
+      - run: pytest tests -v
+      - name: Report MPS correctness status (informational)
+        continue-on-error: true   # a failing torch build must not fail the repo's own CI
+        run: mps-sentry
